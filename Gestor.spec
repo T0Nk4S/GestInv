@@ -6,10 +6,12 @@ block_cipher = None
 a = Analysis(
     ['main.py'],
     pathex=[],
-    binaries=[],
+    binaries=[
+    ],
     datas=[
         ('ui/*.py', 'ui'),
         ('database.py', '.'),
+        ('C:/Users/cooco/AppData/Local/Programs/Python/Python313/Lib/site-packages/pyzbar/*', 'pyzbar'),
     ],
     hiddenimports=[
         'sqlite3',
@@ -21,6 +23,7 @@ a = Analysis(
         'pandas',
         'cv2',
         'pyzbar',
+        'pyzbar.pyzbar',
     ],
     hookspath=[],
     runtime_hooks=[],
