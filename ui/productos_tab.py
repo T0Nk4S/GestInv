@@ -126,16 +126,17 @@ class VentaDialog(QDialog):
         self.cantidad_spin.setMinimum(1)
         self.cantidad_spin.setMaximum(10000)
 
-        self.modelo_label = QTableWidgetItem(self.modelo)
-        self.marca_label = QTableWidgetItem(self.marca)
-        self.proveedor_label = QTableWidgetItem(self.proveedor)
+        self.modelo_info = QLineEdit(self.modelo)
+        self.modelo_info.setReadOnly(True)
+        layout.addRow("Modelo:", self.modelo_info)
 
-        layout.addRow("Modelo:", QLineEdit(self.modelo))
-        layout.itemAt(layout.rowCount()-1).widget().setReadOnly(True)
-        layout.addRow("Marca:", QLineEdit(self.marca))
-        layout.itemAt(layout.rowCount()-1).widget().setReadOnly(True)
-        layout.addRow("Proveedor:", QLineEdit(self.proveedor))
-        layout.itemAt(layout.rowCount()-1).widget().setReadOnly(True)
+        self.marca_info = QLineEdit(self.marca)
+        self.marca_info.setReadOnly(True)
+        layout.addRow("Marca:", self.marca_info)
+
+        self.proveedor_info = QLineEdit(self.proveedor)
+        self.proveedor_info.setReadOnly(True)
+        layout.addRow("Proveedor:", self.proveedor_info)
 
         layout.addRow("Nombre Cliente:", self.nombre_cliente_input)
         layout.addRow("Apellido Cliente:", self.apellido_cliente_input)
@@ -512,11 +513,11 @@ class ProductosTab(QWidget):
                 if not resultado:
                     raise Exception("Producto no encontrado")
                 stock_actual = resultado[0]
-                if datos["tipo"] == "entrada" or datos["tipo"] == "devolucion":
+                if datos["tipo"] == "entrada":
                     nuevo_stock = stock_actual + datos["cantidad"]
-                elif datos["tipo"] == "salida":
+                elif datos["tipo"] in ("salida", "devolucion"):
                     if stock_actual < datos["cantidad"]:
-                        raise Exception("Stock insuficiente para la salida")
+                        raise Exception("Stock insuficiente para la salida/devolución")
                     nuevo_stock = stock_actual - datos["cantidad"]
                 else:
                     raise Exception("Tipo de movimiento inválido")
@@ -535,6 +536,16 @@ class ProductosTab(QWidget):
                 return
             QMessageBox.information(self, "Éxito", "Movimiento registrado correctamente")
             self.cargar_productos()
+            if self.parent_window and hasattr(self.parent_window, "movimientos_tab"):
+                self.parent_window.movimientos_tab.cargar_movimientos()
+                self.parent_window.movimientos_tab.update()
+            # Actualizar tabla de movimientos si el tipo es devolucion
+            if datos["tipo"] == "devolucion":
+                if self.parent_window and hasattr(self.parent_window, "movimientos_tab"):
+                    self.parent_window.movimientos_tab.cargar_movimientos()
+                    self.parent_window.movimientos_tab.update()
+            self.cargar_productos()  # Actualizar tabla de productos siempre
+            self.producto_cambiado.emit()  # Emitir señal para actualizar pestaña de movimientos
             if self.parent_window and hasattr(self.parent_window, "movimientos_tab"):
                 self.parent_window.movimientos_tab.cargar_movimientos()
                 self.parent_window.movimientos_tab.update()

@@ -170,11 +170,11 @@ class MovimientosTab(QWidget):
                 stock_actual = resultado[0]
                 nombre_producto = resultado[1]
 
-                if datos["tipo"] in ("entrada", "devolucion"):
+                if datos["tipo"] == "entrada":
                     nuevo_stock = stock_actual + datos["cantidad"]
-                elif datos["tipo"] == "salida":
+                elif datos["tipo"] in ("salida", "devolucion"):
                     if stock_actual < datos["cantidad"]:
-                        raise Exception("Stock insuficiente para la salida")
+                        raise Exception("Stock insuficiente para la salida/devolución")
                     nuevo_stock = stock_actual - datos["cantidad"]
                 else:
                     raise Exception("Tipo de movimiento inválido")
@@ -193,4 +193,4 @@ class MovimientosTab(QWidget):
 
             QMessageBox.information(self, "Éxito", "Movimiento registrado correctamente")
             self.cargar_productos()
-            self.cargar_movimientos()
+            self.cargar_movimientos()  # <-- Forzar actualización inmediata

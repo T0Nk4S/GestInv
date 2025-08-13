@@ -1,1 +1,2 @@
-pip install opencv-python pyzbar
+pyinstaller Gestor.spec  
+pyinstaller --onefile --windowed main.py        
